@@ -3,19 +3,33 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import Category from './components/Category';
 function App() {
-  const [results, setResults] = useState([])
+  const [categories, setCategories] = useState([])
+  const [products, setProducts] = useState([])
   useEffect(() => {
     fetch("http://localhost:3001/categories")
       .then(res => res.json())
       .then(data => {
         console.log(data)
-        setResults(data)
+        setCategories(data)
       })
   }, [])
+  const handleCategoryClick = id => {
+    fetch("http://localhost:3001/products?catId=" + id)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setProducts(data)
+      })
+  }
   const renderCategories = () => {
-    return results.map(c =>
-      <Category key={c.id} id={c.id} title={c.title} />
+    return categories.map(c =>
+      <Category key={c.id} id={c.id} title={c.title} onCategoryClick={() => handleCategoryClick(c.id)} />
     )
+  }
+  const renderProducts = () => {
+    return products.map(p => (
+      <div key={p.id}>{p.title}</div>
+    ))
   }
 
   return (
@@ -24,11 +38,14 @@ function App() {
       <section>
         <nav>
           {
-            results &&
+            categories &&
             renderCategories()
           }
         </nav>
-        <article>main area</article>
+        <article>
+          <h1>Products</h1>
+          {products && renderProducts()}
+        </article>
       </section>
       <footer>Footer</footer>
     </>
